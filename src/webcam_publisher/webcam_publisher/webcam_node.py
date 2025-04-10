@@ -9,6 +9,8 @@ import numpy as np
 import os
 from ament_index_python.packages import get_package_share_directory
 
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
+
 CAMERA_FREQ = 30 #hz
 script_dir = os.path.dirname(os.path.realpath(__file__))
 # This won't work because I am running python file directly
@@ -18,9 +20,14 @@ calib_file = os.path.join(script_dir, '..','calibration', 'calibration_data.npz'
 class WebcamPublisher(Node):
     def __init__(self):
         super().__init__('webcam_publisher')
+        qos = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=5
+        )
         # publishers
-        self.image_pub = self.create_publisher(Image, '/camera/image_raw',10)
-        self.cam_info_pub = self.create_publisher(CameraInfo, '/camera/camera_info',10) 
+        self.image_pub = self.create_publisher(Image, '/camera/image_raw', qos)
+        self.cam_info_pub = self.create_publisher(CameraInfo, '/camera/camera_info', qos) 
         
         self.timer = self.create_timer(1.0/CAMERA_FREQ, self.timer_callback)
         self.bridge = CvBridge()
@@ -67,7 +74,7 @@ class WebcamPublisher(Node):
         # self.get_logimage_info_pub = ger().debug("Published Image")
 
     def make_camera_info_msg(self, timestamp, height, width):
-        cam_info =CameraInfo()
+        cam_info = CameraInfo()
         cam_info.header.stamp = timestamp
         cam_info.header.frame_id = self.frame_id
         cam_info.height = height
