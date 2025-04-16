@@ -12,6 +12,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(image_transport REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(camera_info_manager REQUIRED)
 
 add_executable(webcam_publisher src/webcam_publisher.cpp)
 ament_target_dependencies(webcam_publisher
@@ -20,6 +21,7 @@ ament_target_dependencies(webcam_publisher
   image_transport
   cv_bridge
   OpenCV
+  camera_info_manager
 )
 install(TARGETS
   webcam_publisher
